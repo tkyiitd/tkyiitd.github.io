@@ -4,18 +4,95 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{ page.description | default: site.description | escape }}">
-    <meta name="theme-color" content="#f4f1e9">
+    <meta name="author" content="Tarun Kumar Yadav">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <meta name="theme-color" content="#ffffff">
     <meta property="og:title" content="{{ page.title | default: site.title | escape }}">
     <meta property="og:description" content="{{ page.description | default: site.description | escape }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:site_name" content="Tarun Kumar Yadav">
+    <meta property="og:locale" content="en_IN">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ page.title | default: site.title | escape }}">
+    <meta name="twitter:description" content="{{ page.description | default: site.description | escape }}">
     <title>{{ page.title | default: site.title | escape }}</title>
     <link rel="canonical" href="{{ page.url | absolute_url }}">
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+    {% if page.profile_page %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfilePage",
+      "@id": "{{ page.url | absolute_url }}#profile",
+      "url": "{{ page.url | absolute_url }}",
+      "name": "{{ page.title | escape }}",
+      "description": "{{ page.description | escape }}",
+      "dateModified": "{{ page.last_modified }}",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "{{ '/' | absolute_url }}#website",
+        "url": "{{ '/' | absolute_url }}",
+        "name": "Tarun Kumar Yadav"
+      },
+      "mainEntity": {
+        "@type": "Person",
+        "@id": "{{ page.url | absolute_url }}#person",
+        "name": "Tarun Kumar Yadav",
+        "url": "{{ page.url | absolute_url }}",
+        "email": "mailto:tkyiitd@gmail.com",
+        "jobTitle": "IAS Officer Trainee",
+        "alumniOf": {
+          "@type": "CollegeOrUniversity",
+          "name": "Indian Institute of Technology Delhi",
+          "url": "https://home.iitd.ac.in/"
+        },
+        "knowsAbout": [
+          "Public administration",
+          "Distributed systems",
+          "Data storage",
+          "Payment systems"
+        ],
+        "award": [
+          "All India Rank 49, UPSC Civil Services Examination 2025",
+          "All India Rank 203, UPSC Civil Services Examination 2024"
+        ],
+        "sameAs": [
+          "https://t.me/emacs_rocks"
+        ],
+        "subjectOf": [
+          {
+            "@type": "ScholarlyArticle",
+            "name": "Variational Inference with Latent Space Quantization for Adversarial Resilience",
+            "url": "https://arxiv.org/abs/1903.09940",
+            "author": { "@id": "{{ page.url | absolute_url }}#person" }
+          },
+          {
+            "@type": "CreativeWork",
+            "name": "Container-based erasure coding",
+            "url": "https://patents.google.com/patent/US12164477B2/en",
+            "creator": { "@id": "{{ page.url | absolute_url }}#person" }
+          },
+          {
+            "@type": "CreativeWork",
+            "name": "Lecture on UPSC preparation",
+            "url": "https://youtu.be/9VX7v6lRGQM",
+            "creator": { "@id": "{{ page.url | absolute_url }}#person" }
+          },
+          {
+            "@type": "CreativeWork",
+            "name": "Lecture on UPSC preparation",
+            "url": "https://youtu.be/eiFe7HRH8Co",
+            "creator": { "@id": "{{ page.url | absolute_url }}#person" }
+          }
+        ]
+      }
+    }
+    </script>
+    {% endif %}
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     {{ content }}
   </body>
 </html>
-

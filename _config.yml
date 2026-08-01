@@ -3,6 +3,7 @@ description: Personal webpage of Tarun Kumar Yadav.
 url: "https://tkyiitd.github.io"
 baseurl: ""
 lang: en-IN
+last_updated: "2026-08-01"
 
 markdown: kramdown
 permalink: pretty
