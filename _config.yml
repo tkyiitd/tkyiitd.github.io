@@ -1,5 +1,5 @@
 title: Tarun Kumar Yadav
-description: Personal webpage of Tarun Kumar Yadav — public service, engineering, and research.
+description: Personal webpage of Tarun Kumar Yadav.
 url: "https://tkyiitd.github.io"
 baseurl: ""
 lang: en-IN
@@ -12,4 +12,3 @@ exclude:
   - Gemfile.lock
   - README.md
   - tmp
-

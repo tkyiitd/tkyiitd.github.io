@@ -1,0 +1,17 @@
+# Add future IAS roles at the top of this list. The page will format them automatically.
+- period: "From 2026"
+  role: "IAS Officer Trainee"
+  organization: "Lal Bahadur Shastri National Academy of Administration, Mussoorie"
+  details:
+    - "UPSC Civil Services Examination 2025: All India Rank 49"
+
+- period: "2025-2026"
+  role: "IPS Officer Trainee"
+  organization: "Sardar Vallabhbhai Patel National Police Academy, Hyderabad"
+  details:
+    - "UPSC Civil Services Examination 2024: All India Rank 203"
+
+- period: "2021-2024"
+  role: "Software Engineer"
+  details:
+    - "Worked on distributed systems, data storage, and backend software."
