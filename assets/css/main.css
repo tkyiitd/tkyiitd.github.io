@@ -108,7 +108,7 @@ section > p {
 
 .entry {
   display: grid;
-  grid-template-columns: 118px minmax(0, 1fr);
+  grid-template-columns: 150px minmax(0, 1fr);
   gap: 1.25rem;
   padding: 1.2rem 0;
   border-bottom: 1px solid var(--border);
@@ -151,6 +151,12 @@ section > p {
 .secondary-link {
   margin-left: 0.3rem;
   font-size: 0.9rem;
+}
+
+.contact-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.5rem;
 }
 
 footer {
