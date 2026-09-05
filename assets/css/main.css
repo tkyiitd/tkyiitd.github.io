@@ -2,10 +2,10 @@
 ---
 
 :root {
-  --text: #202124;
-  --secondary: #5f6368;
-  --border: #dadce0;
-  --link: #1a5fb4;
+  --text: #f0f3e8;
+  --secondary: #ccd6c7;
+  --border: rgba(219, 232, 204, 0.19);
+  --link: #e0d9ad;
 }
 
 * {
@@ -13,18 +13,81 @@
 }
 
 html {
-  background: #ffffff;
+  background: #101f18;
   font-size: 16px;
 }
 
 body {
+  position: relative;
+  isolation: isolate;
   margin: 0;
-  background: #ffffff;
+  background: transparent;
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
+
+.forest-scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: #101f18 url("{{ '/assets/images/forest-valley.jpg' | relative_url }}") center top / cover no-repeat;
+}
+
+.forest-canopy,
+.forest-leaves,
+.forest-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.forest-canopy { opacity: 0; }
+.forest-canopy.is-ready { opacity: 1; }
+
+.forest-mist {
+  position: absolute;
+  inset: -15%;
+  background:
+    radial-gradient(ellipse at 82% 28%, rgba(238, 226, 166, .17), transparent 42%),
+    radial-gradient(ellipse at 18% 72%, rgba(192, 218, 200, .14), transparent 36%);
+  animation: mist-drift 18s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.forest-shade {
+  background:
+    radial-gradient(ellipse max(410px, 34vw) 110% at 50% 42%, rgba(7, 21, 15, .75) 0%, rgba(8, 24, 17, .59) 52%, transparent 100%),
+    linear-gradient(180deg, rgba(5, 19, 12, .08), rgba(5, 19, 12, .12) 58%, rgba(5, 19, 12, .26));
+}
+
+@keyframes mist-drift {
+  from { transform: translate3d(-3%, 0, 0); opacity: .55; }
+  to { transform: translate3d(4%, -2%, 0); opacity: 1; }
+}
+
+.motion-toggle {
+  position: fixed;
+  z-index: 3;
+  right: 1rem;
+  bottom: 1rem;
+  padding: .5rem .8rem;
+  border: 1px solid rgba(224, 231, 206, .27);
+  border-radius: 2rem;
+  color: var(--secondary);
+  background: rgba(10, 28, 19, .82);
+  font: inherit;
+  font-size: .875rem;
+  cursor: pointer;
+}
+
+.motion-toggle:hover { color: var(--text); border-color: var(--link); }
+.motion-toggle:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; }
+.forest-paused .forest-mist { animation-play-state: paused; }
 
 a {
   color: var(--link);
@@ -42,11 +105,12 @@ a:focus-visible {
 }
 
 .skip-link {
+  z-index: 4;
   position: absolute;
   top: 0.75rem;
   left: 0.75rem;
   padding: 0.4rem 0.6rem;
-  background: #ffffff;
+  background: #142a1d;
   transform: translateY(-200%);
 }
 
@@ -56,12 +120,13 @@ a:focus-visible {
 
 main,
 footer {
-  width: min(780px, calc(100% - 2.5rem));
+  width: min(740px, calc(100% - 2.5rem));
   margin-inline: auto;
+  text-shadow: 0 1px 10px rgba(3, 14, 8, .3);
 }
 
 .page-header {
-  padding: 3.5rem 0 2rem;
+  padding: 4.5rem 0 2rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -164,7 +229,7 @@ section > p {
 }
 
 footer {
-  padding: 1.25rem 0 3rem;
+  padding: 1.25rem 0 5rem;
   color: var(--secondary);
   font-size: 0.85rem;
 }
@@ -176,7 +241,11 @@ footer p {
 @media (max-width: 560px) {
   main,
   footer {
-    width: min(100% - 2rem, 780px);
+    width: min(100% - 2rem, 740px);
+  }
+
+  .forest-shade {
+    background: linear-gradient(180deg, rgba(6, 22, 14, .65), rgba(6, 22, 14, .64) 40%, rgba(6, 22, 14, .72));
   }
 
   .page-header {
@@ -193,7 +262,20 @@ footer p {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .forest-mist { animation: none; }
+}
+
 @media print {
+  :root {
+    --text: #202124;
+    --secondary: #5f6368;
+    --border: #dadce0;
+    --link: #1a5fb4;
+  }
+  html, body { background: #fff; }
+  .forest-scene, .motion-toggle { display: none; }
+  main, footer { text-shadow: none; }
   body {
     font-size: 11pt;
   }
