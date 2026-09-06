@@ -1,8 +1,8 @@
 :root {
-  --text: #f2f7fa;
-  --secondary: #d2e2ec;
-  --border: rgba(215, 236, 246, 0.22);
-  --link: #f6dfa9;
+  --text: #eaf2f2;
+  --secondary: #becfd3;
+  --border: rgba(192, 220, 223, 0.17);
+  --link: #dfcea5;
 }
 
 * {
@@ -10,7 +10,7 @@
 }
 
 html {
-  background: #073b62;
+  background: #07151e;
   font-size: 16px;
 }
 
@@ -25,44 +25,29 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.ocean-scene {
+.flow-scene {
   position: fixed;
   inset: 0;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  background: #073b62;
+  background:
+    radial-gradient(ellipse at 12% 12%, rgba(81, 137, 165, .46), transparent 65%),
+    radial-gradient(ellipse at 90% 92%, rgba(189, 150, 105, .28), transparent 60%),
+    linear-gradient(155deg, #183950, #183444 48%, #34454b);
 }
 
-.ocean-poster,
-.ocean-video,
-.ocean-shade {
+.flow-canvas,
+.flow-shade {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.ocean-poster,
-.ocean-video {
-  object-fit: cover;
-  object-position: center;
-}
-
-.ocean-video {
-  opacity: 0;
-  transition: opacity 450ms ease;
-}
-.ocean-video.is-ready { opacity: 1; }
-
-@media (prefers-reduced-motion: reduce) {
-  .ocean-video { transition: none; }
-}
-
-.ocean-shade {
+.flow-shade {
   background:
-    radial-gradient(ellipse max(410px, 34vw) 110% at 50% 42%, rgba(3, 27, 49, .73) 0%, rgba(4, 35, 57, .6) 52%, transparent 100%),
-    linear-gradient(180deg, rgba(6, 36, 60, .09), rgba(4, 31, 53, .09) 58%, rgba(3, 26, 45, .3));
+    radial-gradient(ellipse max(350px, 28vw) 115% at 50% 42%, rgba(7, 21, 30, .62) 0%, rgba(7, 21, 30, .36) 58%, transparent 100%);
 }
 
 .motion-toggle {
@@ -74,7 +59,7 @@ body {
   border: 1px solid rgba(224, 231, 206, .27);
   border-radius: 2rem;
   color: var(--secondary);
-  background: rgba(7, 42, 68, .84);
+  background: rgba(7, 21, 30, .9);
   font: inherit;
   font-size: .875rem;
   cursor: pointer;
@@ -233,18 +218,13 @@ footer p {
 }
 
 @media (max-width: 560px) {
-  .ocean-poster,
-  .ocean-video {
-    object-position: 38% center;
-  }
-
   main,
   footer {
     width: min(100% - 2rem, 740px);
   }
 
-  .ocean-shade {
-    background: linear-gradient(180deg, rgba(3, 27, 49, .67), rgba(3, 29, 48, .62) 40%, rgba(3, 27, 46, .72));
+  .flow-shade {
+    background: linear-gradient(180deg, rgba(7, 21, 30, .36), rgba(7, 21, 30, .5) 40%, rgba(7, 21, 30, .42));
   }
 
   .page-header {
@@ -269,7 +249,7 @@ footer p {
     --link: #1a5fb4;
   }
   html, body { background: #fff; }
-  .ocean-scene, .motion-toggle { display: none; }
+  .flow-scene, .motion-toggle { display: none; }
   main, footer { text-shadow: none; }
   body {
     font-size: 11pt;
