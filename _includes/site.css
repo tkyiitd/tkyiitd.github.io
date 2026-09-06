@@ -1,11 +1,8 @@
----
----
-
 :root {
-  --text: #f0f3e8;
-  --secondary: #ccd6c7;
-  --border: rgba(219, 232, 204, 0.19);
-  --link: #e0d9ad;
+  --text: #f2f7fa;
+  --secondary: #d2e2ec;
+  --border: rgba(215, 236, 246, 0.22);
+  --link: #f6dfa9;
 }
 
 * {
@@ -13,7 +10,7 @@
 }
 
 html {
-  background: #101f18;
+  background: #073b62;
   font-size: 16px;
 }
 
@@ -28,46 +25,44 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.forest-scene {
+.ocean-scene {
   position: fixed;
   inset: 0;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  background: #101f18 url("{{ '/assets/images/forest-valley.jpg' | relative_url }}") center top / cover no-repeat;
+  background: #073b62;
 }
 
-.forest-canopy,
-.forest-leaves,
-.forest-shade {
+.ocean-poster,
+.ocean-video,
+.ocean-shade {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.forest-canopy { opacity: 0; }
-.forest-canopy.is-ready { opacity: 1; }
-
-.forest-mist {
-  position: absolute;
-  inset: -15%;
-  background:
-    radial-gradient(ellipse at 82% 28%, rgba(238, 226, 166, .17), transparent 42%),
-    radial-gradient(ellipse at 18% 72%, rgba(192, 218, 200, .14), transparent 36%);
-  animation: mist-drift 18s ease-in-out infinite alternate;
-  pointer-events: none;
+.ocean-poster,
+.ocean-video {
+  object-fit: cover;
+  object-position: center;
 }
 
-.forest-shade {
-  background:
-    radial-gradient(ellipse max(410px, 34vw) 110% at 50% 42%, rgba(7, 21, 15, .75) 0%, rgba(8, 24, 17, .59) 52%, transparent 100%),
-    linear-gradient(180deg, rgba(5, 19, 12, .08), rgba(5, 19, 12, .12) 58%, rgba(5, 19, 12, .26));
+.ocean-video {
+  opacity: 0;
+  transition: opacity 450ms ease;
+}
+.ocean-video.is-ready { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ocean-video { transition: none; }
 }
 
-@keyframes mist-drift {
-  from { transform: translate3d(-3%, 0, 0); opacity: .55; }
-  to { transform: translate3d(4%, -2%, 0); opacity: 1; }
+.ocean-shade {
+  background:
+    radial-gradient(ellipse max(410px, 34vw) 110% at 50% 42%, rgba(3, 27, 49, .73) 0%, rgba(4, 35, 57, .6) 52%, transparent 100%),
+    linear-gradient(180deg, rgba(6, 36, 60, .09), rgba(4, 31, 53, .09) 58%, rgba(3, 26, 45, .3));
 }
 
 .motion-toggle {
@@ -79,7 +74,7 @@ body {
   border: 1px solid rgba(224, 231, 206, .27);
   border-radius: 2rem;
   color: var(--secondary);
-  background: rgba(10, 28, 19, .82);
+  background: rgba(7, 42, 68, .84);
   font: inherit;
   font-size: .875rem;
   cursor: pointer;
@@ -87,7 +82,6 @@ body {
 
 .motion-toggle:hover { color: var(--text); border-color: var(--link); }
 .motion-toggle:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; }
-.forest-paused .forest-mist { animation-play-state: paused; }
 
 a {
   color: var(--link);
@@ -110,7 +104,7 @@ a:focus-visible {
   top: 0.75rem;
   left: 0.75rem;
   padding: 0.4rem 0.6rem;
-  background: #142a1d;
+  background: #123b59;
   transform: translateY(-200%);
 }
 
@@ -122,7 +116,7 @@ main,
 footer {
   width: min(740px, calc(100% - 2.5rem));
   margin-inline: auto;
-  text-shadow: 0 1px 10px rgba(3, 14, 8, .3);
+  text-shadow: 0 1px 12px rgba(2, 20, 38, .48);
 }
 
 .page-header {
@@ -239,13 +233,18 @@ footer p {
 }
 
 @media (max-width: 560px) {
+  .ocean-poster,
+  .ocean-video {
+    object-position: 38% center;
+  }
+
   main,
   footer {
     width: min(100% - 2rem, 740px);
   }
 
-  .forest-shade {
-    background: linear-gradient(180deg, rgba(6, 22, 14, .65), rgba(6, 22, 14, .64) 40%, rgba(6, 22, 14, .72));
+  .ocean-shade {
+    background: linear-gradient(180deg, rgba(3, 27, 49, .67), rgba(3, 29, 48, .62) 40%, rgba(3, 27, 46, .72));
   }
 
   .page-header {
@@ -262,10 +261,6 @@ footer p {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .forest-mist { animation: none; }
-}
-
 @media print {
   :root {
     --text: #202124;
@@ -274,7 +269,7 @@ footer p {
     --link: #1a5fb4;
   }
   html, body { background: #fff; }
-  .forest-scene, .motion-toggle { display: none; }
+  .ocean-scene, .motion-toggle { display: none; }
   main, footer { text-shadow: none; }
   body {
     font-size: 11pt;
