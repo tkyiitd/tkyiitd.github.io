@@ -37,12 +37,18 @@ body {
     linear-gradient(180deg, #a7bdce, #cfdae0 52%, #e8d9c7);
 }
 
+.sky-landscape,
 .flow-canvas,
 .flow-shade {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.sky-landscape {
+  object-fit: cover;
+  object-position: center bottom;
 }
 
 .flow-shade {

@@ -72,7 +72,7 @@ function start(THREE, Flock, canvas, button) {
         vec3 up = normalize(cross(forward, right));
         vec3 bankRight = right * cos(birdBank) + up * sin(birdBank);
         vec3 bankUp = up * cos(birdBank) - right * sin(birdBank);
-        vec3 world = birdPosition + (bankRight * p.x + bankUp * p.y + forward * p.z) * birdSize;
+        vec3 world = birdPosition + (bankRight * p.x + bankUp * p.y + forward * p.z) * birdSize * 1.3;
         vec4 view = modelViewMatrix * vec4(world, 1.);
         vDistance = -view.z;
         vLight = .5 + .5 * abs(dot(bankUp, vec3(.3,.7,.4)));
@@ -95,18 +95,63 @@ function start(THREE, Flock, canvas, button) {
   mesh.frustumCulled = false;
   scene.add(mesh);
 
+  // A screen-space veil adds slow mist over the distant landscape and very
+  // faint shafts of sunlight. It shares the flock clock and pause controls.
+  const atmosphere = new THREE.ShaderMaterial({
+    transparent: true, depthTest: false, depthWrite: false,
+    uniforms: { uTime: { value: 0 }, uAspect: { value: 1 } },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = position.xy * .5 + .5;
+        gl_Position = vec4(position.xy, 0., 1.);
+      }
+    `,
+    fragmentShader: `
+      uniform float uTime;
+      uniform float uAspect;
+      varying vec2 vUv;
+      float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1,311.7))) * 43758.5453); }
+      float noise(vec2 p) {
+        vec2 i = floor(p), f = fract(p);
+        vec2 u = f*f*(3.-2.*f);
+        return mix(mix(hash(i),hash(i+vec2(1.,0.)),u.x),
+                   mix(hash(i+vec2(0.,1.)),hash(i+vec2(1.,1.)),u.x),u.y);
+      }
+      void main() {
+        vec2 uv = vUv;
+        vec2 wind = vec2(uTime*.016, uTime*.003);
+        float n = noise(vec2(uv.x*uAspect*2.4,uv.y*9.)-wind)*.65
+                + noise(vec2(uv.x*uAspect*5.,uv.y*17.)-wind*1.3)*.35;
+        float band = exp(-pow((uv.y-.16-.045*sin(uv.x*5.+uTime*.035))/.11,2.));
+        float mist = band * smoothstep(.22,.8,n) * .2;
+        vec2 sun = vec2((uv.x-.87)*uAspect,uv.y-1.13);
+        float angle = atan(sun.x,-sun.y);
+        float shaft = pow(.5+.5*sin(angle*43.+sin(uTime*.04)*.2),12.);
+        float rays = shaft * exp(-length(sun)*.7) * .045;
+        gl_FragColor = vec4(mix(vec3(.9,.95,.98),vec3(1.,.96,.86),rays/(mist+rays+.001)),mist+rays);
+      }
+    `
+  });
+  const veil = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), atmosphere);
+  veil.frustumCulled = false;
+  veil.renderOrder = 2;
+  scene.add(veil);
+
   let paused = preference.matches, lost = false;
   let frame = 0, previous = null, accumulator = 0;
   const pointer = { active: false, x: 0, y: 0 };
   function render() {
     positions.needsUpdate = velocities.needsUpdate = banks.needsUpdate = true;
     material.uniforms.uTime.value = flock.time;
+    atmosphere.uniforms.uTime.value = flock.time;
     renderer.render(scene, camera);
   }
   function resize() {
     const width = Math.max(1, window.innerWidth), height = Math.max(1, window.innerHeight);
     flock.resize(width / height);
     camera.aspect = width / height;
+    atmosphere.uniforms.uAspect.value = camera.aspect;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);
     if (!lost) render();
