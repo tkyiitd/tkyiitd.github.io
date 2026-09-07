@@ -1,217 +1,162 @@
-(() => {
-  'use strict';
+// Load the local 3D engine only after the profile's first paint.
+requestAnimationFrame(() => requestAnimationFrame(async () => {
   const canvas = document.querySelector('.flow-canvas');
   const button = document.querySelector('.motion-toggle');
   if (!canvas || !button) return;
-  const ctx = canvas.getContext('2d', { alpha: true });
-  if (!ctx) return;
+  try {
+    const [THREE, { Flock }] = await Promise.all([
+      import('./three/three.module.min.js'), import('./flock-model.js')
+    ]);
+    start(THREE, Flock, canvas, button);
+  } catch (error) {
+    // The independently rendered sky and profile stay usable without WebGL.
+    canvas.style.opacity = '0';
+    button.hidden = true;
+    console.warn('Murmuration unavailable; using the static sky.', error);
+  }
+}));
 
+function start(THREE, Flock, canvas, button) {
   const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const TAU = Math.PI * 2;
-  const step = 1 / 60;
-  let width = 1, height = 1, birds = [], grid = new Map();
-  let time = 0, previous = null, accumulator = 0, frame = 0;
-  let paused = preference.matches;
-  let seed = 7239;
-  const pointer = { x: -1000, y: -1000, active: false };
-  const random = () => {
-    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
-    return seed / 4294967296;
-  };
+  const mobile = window.innerWidth < 600;
+  const flock = new Flock(mobile ? 1200 : 3200, window.innerWidth / window.innerHeight);
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75));
+  renderer.setClearColor(0x000000, 0);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(50, 1, 1, 600);
+  camera.position.set(0, 0, 172);
+  camera.lookAt(0, 0, 0);
 
-  function populate() {
-    // Stratified positions cover the entire viewport from the first frame.
-    const count = Math.round(Math.max(140, Math.min(520, width * height / 3400)));
-    const columns = Math.ceil(Math.sqrt(count * width / height));
-    const rows = Math.ceil(count / columns);
-    birds = Array.from({ length: count }, (_, i) => {
-      const depth = random();
-      const x = ((i % columns) + random()) / columns * width;
-      const y = (Math.floor(i / columns) + random()) / rows * height;
-      const angle = .5 + Math.sin(x / width * TAU) * 1.7 + Math.cos(y / height * TAU);
-      const speed = 24 + depth * 24;
-      return {
-        x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-        ax: 0, ay: 0, heading: angle, depth,
-        size: 2.4 + depth * depth * 6.8,
-        phase: random() * TAU, beat: .9 + random() * .45,
-        shade: Math.floor(random() * 3)
-      };
-    }).sort((a, b) => a.depth - b.depth);
-  }
-
-  function simulate(dt) {
-    time += dt;
-    const radius = 78;
-    const radius2 = radius * radius;
-    grid.clear();
-    for (const b of birds) {
-      const key = `${Math.floor(b.x / radius)},${Math.floor(b.y / radius)}`;
-      if (!grid.has(key)) grid.set(key, []);
-      grid.get(key).push(b);
-    }
-
-    // Reynolds-style separation, alignment and cohesion, evaluated from a
-    // shared snapshot so no bird gets priority because of array ordering.
-    for (const b of birds) {
-      let count = 0, alignX = 0, alignY = 0, centerX = 0, centerY = 0;
-      let separateX = 0, separateY = 0;
-      const gx = Math.floor(b.x / radius), gy = Math.floor(b.y / radius);
-      for (let ox = -1; ox <= 1; ox++) {
-        for (let oy = -1; oy <= 1; oy++) {
-          const neighbors = grid.get(`${gx + ox},${gy + oy}`);
-          if (!neighbors) continue;
-          for (const other of neighbors) {
-            if (other === b) continue;
-            const dx = other.x - b.x, dy = other.y - b.y;
-            const d2 = dx * dx + dy * dy;
-            if (d2 > radius2 || d2 < .001) continue;
-            const distance = Math.sqrt(d2);
-            // Gentle density pressure across the full neighborhood keeps
-            // mobile flocks from collapsing into one crowded corner.
-            const spread = (1 - distance / radius) * 7;
-            separateX -= dx / distance * spread;
-            separateY -= dy / distance * spread;
-            if (d2 < 32 * 32) {
-              const d = distance;
-              const force = (1 - d / 32) * 34;
-              separateX -= dx / d * force;
-              separateY -= dy / d * force;
-            }
-            if (Math.abs(b.depth - other.depth) < .4) {
-              count++;
-              alignX += other.vx; alignY += other.vy;
-              centerX += dx; centerY += dy;
-            }
-          }
-        }
+  // One instanced draw call, with articulated wings animated on the GPU.
+  const geometry = new THREE.InstancedBufferGeometry();
+  const vertices = new Float32Array([
+    -.045,0,-.2, .045,0,-.2, 0,.035,.28,
+    0,0,.12, -.24,0,-.015, -.09,0,-.14,
+    -.24,0,-.015, -.53,0,-.28, -.09,0,-.14,
+    0,0,.12, .09,0,-.14, .24,0,-.015,
+    .24,0,-.015, .09,0,-.14, .53,0,-.28,
+    0,0,-.12, -.085,0,-.34, .085,0,-.34
+  ]);
+  geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+  const positions = new THREE.InstancedBufferAttribute(flock.positions, 3).setUsage(THREE.DynamicDrawUsage);
+  const velocities = new THREE.InstancedBufferAttribute(flock.velocities, 3).setUsage(THREE.DynamicDrawUsage);
+  const banks = new THREE.InstancedBufferAttribute(flock.banks, 1).setUsage(THREE.DynamicDrawUsage);
+  geometry.setAttribute('birdPosition', positions);
+  geometry.setAttribute('birdVelocity', velocities);
+  geometry.setAttribute('birdBank', banks);
+  geometry.setAttribute('birdPhase', new THREE.InstancedBufferAttribute(flock.phases, 1));
+  geometry.setAttribute('birdSize', new THREE.InstancedBufferAttribute(flock.sizes, 1));
+  geometry.instanceCount = flock.count;
+  const material = new THREE.ShaderMaterial({
+    side: THREE.DoubleSide,
+    uniforms: { uTime: { value: 0 } },
+    vertexShader: `
+      attribute vec3 birdPosition;
+      attribute vec3 birdVelocity;
+      attribute float birdBank;
+      attribute float birdPhase;
+      attribute float birdSize;
+      uniform float uTime;
+      varying float vDistance;
+      varying float vLight;
+      void main() {
+        vec3 p = position;
+        float glide = smoothstep(-.3, .7, sin(uTime * .42 + birdPhase));
+        float flap = sin(uTime * (7.0 + birdSize) + birdPhase);
+        p.y += abs(p.x) * flap * (.12 + .78 * glide);
+        p.z += abs(p.x) * cos(uTime * 7.0 + birdPhase) * .075;
+        vec3 forward = normalize(birdVelocity);
+        vec3 reference = abs(forward.y) > .95 ? vec3(1.,0.,0.) : vec3(0.,1.,0.);
+        vec3 right = normalize(cross(reference, forward));
+        vec3 up = normalize(cross(forward, right));
+        vec3 bankRight = right * cos(birdBank) + up * sin(birdBank);
+        vec3 bankUp = up * cos(birdBank) - right * sin(birdBank);
+        vec3 world = birdPosition + (bankRight * p.x + bankUp * p.y + forward * p.z) * birdSize;
+        vec4 view = modelViewMatrix * vec4(world, 1.);
+        vDistance = -view.z;
+        vLight = .5 + .5 * abs(dot(bankUp, vec3(.3,.7,.4)));
+        gl_Position = projectionMatrix * view;
       }
-      let ax = separateX, ay = separateY;
-      if (count) {
-        ax += (alignX / count - b.vx) * .68 + centerX / count * .095;
-        ay += (alignY / count - b.vy) * .68 + centerY / count * .095;
+    `,
+    fragmentShader: `
+      varying float vDistance;
+      varying float vLight;
+      void main() {
+        vec3 ink = mix(vec3(.012,.02,.029), vec3(.038,.05,.061), vLight);
+        float haze = smoothstep(125., 240., vDistance) * .56;
+        gl_FragColor = vec4(mix(ink, vec3(.43,.51,.55), haze), 1.);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }
-      // A slowly changing breeze prevents a single tight cluster and encourages
-      // broad, curling formations rather than fixed routes or a looping video.
-      ax += Math.sin(b.y / height * TAU + time * .105) * 7;
-      ay += Math.cos(b.x / width * TAU - time * .085) * 7;
-      if (pointer.active) {
-        const dx = b.x - pointer.x, dy = b.y - pointer.y;
-        const d = Math.hypot(dx, dy);
-        if (d > .1 && d < 115) {
-          ax += dx / d * (1 - d / 115) * 20;
-          ay += dy / d * (1 - d / 115) * 20;
-        }
-      }
-      const magnitude = Math.hypot(ax, ay);
-      const limit = magnitude > 26 ? 26 / magnitude : 1;
-      b.ax = ax * limit; b.ay = ay * limit;
-    }
+    `
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.frustumCulled = false;
+  scene.add(mesh);
 
-    for (const b of birds) {
-      b.vx += b.ax * dt; b.vy += b.ay * dt;
-      const speed = Math.hypot(b.vx, b.vy) || 1;
-      const min = 21 + b.depth * 14, max = 35 + b.depth * 23;
-      const target = Math.max(min, Math.min(max, speed));
-      b.vx *= target / speed; b.vy *= target / speed;
-      b.x += b.vx * dt; b.y += b.vy * dt;
-      const angle = Math.atan2(b.vy, b.vx);
-      const turn = Math.atan2(Math.sin(angle - b.heading), Math.cos(angle - b.heading));
-      b.heading += turn * (1 - Math.exp(-dt * 6));
-      // Wrap beyond the visible edge; the full wings have left before reentry.
-      const margin = 28;
-      if (b.x < -margin) b.x += width + margin * 2;
-      if (b.x > width + margin) b.x -= width + margin * 2;
-      if (b.y < -margin) b.y += height + margin * 2;
-      if (b.y > height + margin) b.y -= height + margin * 2;
-    }
-  }
-
-  function drawBird(b) {
-    // A compact, articulated boid silhouette: tapered wings, body and tail.
-    // Independent wing phases alternate gentle beats with extended glides.
-    const cycle = time * b.beat + b.phase;
-    const glide = Math.max(0, Math.sin(time * .33 + b.phase));
-    const wing = .7 + .3 * Math.sin(cycle * TAU) * (1 - glide * .88);
-    const sweep = .25 + .2 * Math.cos(cycle * TAU) * (1 - glide);
-    const s = b.size;
-    const colors = ['211, 230, 237', '235, 223, 200', '161, 198, 218'];
-    ctx.save();
-    ctx.translate(b.x, b.y);
-    ctx.rotate(b.heading + Math.PI / 2);
-    ctx.fillStyle = `rgba(${colors[b.shade]}, ${.29 + b.depth * .5})`;
-    ctx.beginPath();
-    ctx.moveTo(0, -s * .55);
-    ctx.quadraticCurveTo(-s * .17, -s * .32, -s * .39, -s * .24);
-    ctx.quadraticCurveTo(-s * .88, -s * .36, -s * 1.5 * wing, s * sweep);
-    ctx.quadraticCurveTo(-s * .66, -s * .02, -s * .15, s * .22);
-    ctx.lineTo(-s * .15, s * .6);
-    ctx.lineTo(0, s * .43);
-    ctx.lineTo(s * .15, s * .6);
-    ctx.lineTo(s * .15, s * .22);
-    ctx.quadraticCurveTo(s * .66, -s * .02, s * 1.5 * wing, s * sweep);
-    ctx.quadraticCurveTo(s * .88, -s * .36, s * .39, -s * .24);
-    ctx.quadraticCurveTo(s * .17, -s * .32, 0, -s * .55);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-
+  let paused = preference.matches, lost = false;
+  let frame = 0, previous = null, accumulator = 0;
+  const pointer = { active: false, x: 0, y: 0 };
   function render() {
-    ctx.clearRect(0, 0, width, height);
-    for (const b of birds) drawBird(b);
+    positions.needsUpdate = velocities.needsUpdate = banks.needsUpdate = true;
+    material.uniforms.uTime.value = flock.time;
+    renderer.render(scene, camera);
   }
-
   function resize() {
-    const oldWidth = width, oldHeight = height;
-    width = Math.max(1, window.innerWidth);
-    height = Math.max(1, window.innerHeight);
-    const ratio = Math.min(window.devicePixelRatio || 1, 1.75);
-    canvas.width = Math.round(width * ratio);
-    canvas.height = Math.round(height * ratio);
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    if (!birds.length) populate();
-    else for (const b of birds) { b.x *= width / oldWidth; b.y *= height / oldHeight; }
-    render();
+    const width = Math.max(1, window.innerWidth), height = Math.max(1, window.innerHeight);
+    flock.resize(width / height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height, false);
+    if (!lost) render();
   }
-
   function tick(now) {
     frame = 0;
-    if (paused || document.hidden) return;
-    if (previous !== null) accumulator += Math.min((now - previous) / 1000, .05);
+    if (paused || lost || document.hidden) return;
+    if (previous !== null) accumulator += Math.min((now - previous) / 1000, .06);
     previous = now;
     let updated = false;
-    while (accumulator >= step) {
-      simulate(step); accumulator -= step; updated = true;
+    while (accumulator >= 1 / 30) {
+      // Slower simulation time gives the flock unhurried collective turns.
+      flock.step(1 / 45, pointer);
+      accumulator -= 1 / 30;
+      updated = true;
     }
     if (updated) render();
     frame = requestAnimationFrame(tick);
   }
-
   function sync() {
     cancelAnimationFrame(frame);
     frame = 0; previous = null; accumulator = 0;
     button.textContent = paused ? 'Play animation' : 'Pause animation';
     button.setAttribute('aria-pressed', String(paused));
-    if (!paused && !document.hidden) frame = requestAnimationFrame(tick);
+    if (!paused && !lost && !document.hidden) frame = requestAnimationFrame(tick);
   }
   button.addEventListener('click', () => { paused = !paused; sync(); });
   preference.addEventListener('change', () => { paused = preference.matches; sync(); });
   document.addEventListener('visibilitychange', () => { pointer.active = false; sync(); });
   window.addEventListener('pointermove', event => {
-    pointer.x = event.clientX; pointer.y = event.clientY; pointer.active = true;
+    const halfHeight = Math.tan(25 * Math.PI / 180) * camera.position.z;
+    pointer.x = (event.clientX / window.innerWidth * 2 - 1) * halfHeight * camera.aspect;
+    pointer.y = (1 - event.clientY / window.innerHeight * 2) * halfHeight;
+    pointer.active = true;
   }, { passive: true });
   window.addEventListener('pointerup', event => {
     if (event.pointerType !== 'mouse') pointer.active = false;
   }, { passive: true });
   document.addEventListener('pointerleave', () => { pointer.active = false; });
+  canvas.addEventListener('webglcontextlost', event => {
+    event.preventDefault(); lost = true; canvas.style.opacity = '0'; button.hidden = true; sync();
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    lost = false; canvas.style.opacity = '1'; button.hidden = false; resize(); sync();
+  });
   let resizeTimer;
   window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resize, 150);
+    clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 150);
   }, { passive: true });
-  // Content paints first; the flock needs no images, fonts or media downloads.
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    resize(); button.hidden = false; sync();
-  }));
-})();
+  resize();
+  button.hidden = false;
+  sync();
+}

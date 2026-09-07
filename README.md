@@ -13,20 +13,25 @@ Then open `http://127.0.0.1:4000`.
 
 ## Background
 
-`assets/js/flow-background.js` draws a full-viewport flock of birds against a blue
-twilight sky. Boids use local separation, alignment and cohesion with a slowly
-changing breeze. Spatial neighbor lookup and simultaneous steering updates keep
-motion efficient and consistent. Different sizes, wing phases and gliding intervals
-give the flock depth. Birds gently part around the pointer, and wrap outside the
-screen edges. A soft reading gradient integrates the text without a separate panel.
+`assets/js/flow-background.js` renders a three-dimensional murmuration with Three.js.
+`assets/js/flock-model.js` computes local separation, alignment and cohesion in a
+spatial grid, plus soft volume boundaries, wind and a passing repulsive disturbance.
+Birds do not follow preset curves. This is an artistic simulation, not a validated
+model of animal behavior. Desktop uses 3,200 birds; mobile uses 1,200.
+Instanced geometry renders the flock in one draw call; vertex shaders animate
+individual wingbeats and banking, while perspective and haze provide depth.
+Dark silhouettes sit against a pale blue and warm evening sky. Birds gently part
+around the pointer; a continuous light reading gradient protects the profile text.
 
-There are no background images, videos, animation libraries or remote animation
-dependencies. CSS is inlined from `_includes/site.css`; the profile is ordinary
-HTML with system fonts and appears independently of JavaScript. A dark atmospheric
-gradient remains when JavaScript or canvas is unavailable.
+Three.js 0.180.0 is pinned and served locally from `assets/js/three/`, with its MIT
+license included. The two browser modules were extracted from the npm release after
+SHA-512 integrity verification. No CDN, Node server or new build pipeline is needed
+on GitHub Pages. All imports are relative and compatible with a Jekyll base URL.
+CSS is inlined from `_includes/site.css`; ordinary HTML and system fonts display
+before the engine loads. A static sky remains if JavaScript, WebGL2 or loading fails.
 
-The animation uses a fixed 60 Hz simulation step, caps display resolution and scales
-the flock size to the initial viewport. It pauses in hidden tabs, honors reduced-motion
+The animation updates at 30 Hz with gently slowed simulation time, caps display
+resolution and scales the flock size to the initial viewport. It pauses in hidden tabs, honors reduced-motion
 preferences with a still composition, and has a keyboard-accessible play/pause
 button. Printing uses a white background with no animation.
 

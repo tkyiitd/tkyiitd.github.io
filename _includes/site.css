@@ -1,8 +1,8 @@
 :root {
-  --text: #eaf2f2;
-  --secondary: #becfd3;
-  --border: rgba(192, 220, 223, 0.17);
-  --link: #dfcea5;
+  --text: #172d3c;
+  --secondary: #354b59;
+  --border: rgba(33, 57, 72, .2);
+  --link: #62432b;
 }
 
 * {
@@ -10,7 +10,7 @@
 }
 
 html {
-  background: #07151e;
+  background: #c3d2d9;
   font-size: 16px;
 }
 
@@ -32,9 +32,9 @@ body {
   overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 12% 12%, rgba(81, 137, 165, .46), transparent 65%),
-    radial-gradient(ellipse at 90% 92%, rgba(189, 150, 105, .28), transparent 60%),
-    linear-gradient(155deg, #183950, #183444 48%, #34454b);
+    radial-gradient(ellipse at 88% 85%, rgba(255, 218, 174, .75), transparent 58%),
+    radial-gradient(ellipse at 15% 15%, rgba(174, 200, 216, .65), transparent 65%),
+    linear-gradient(180deg, #a7bdce, #cfdae0 52%, #e8d9c7);
 }
 
 .flow-canvas,
@@ -47,7 +47,7 @@ body {
 
 .flow-shade {
   background:
-    radial-gradient(ellipse max(350px, 28vw) 115% at 50% 42%, rgba(7, 21, 30, .62) 0%, rgba(7, 21, 30, .36) 58%, transparent 100%);
+    radial-gradient(ellipse max(350px, 28vw) 115% at 50% 42%, rgba(220, 229, 231, .91) 0%, rgba(220, 229, 231, .62) 58%, transparent 100%);
 }
 
 .motion-toggle {
@@ -56,10 +56,10 @@ body {
   right: 1rem;
   bottom: 1rem;
   padding: .5rem .8rem;
-  border: 1px solid rgba(224, 231, 206, .27);
+  border: 1px solid var(--border);
   border-radius: 2rem;
   color: var(--secondary);
-  background: rgba(7, 21, 30, .9);
+  background: rgba(225, 232, 233, .9);
   font: inherit;
   font-size: .875rem;
   cursor: pointer;
@@ -89,7 +89,7 @@ a:focus-visible {
   top: 0.75rem;
   left: 0.75rem;
   padding: 0.4rem 0.6rem;
-  background: #123b59;
+  background: #e1e8e9;
   transform: translateY(-200%);
 }
 
@@ -101,7 +101,7 @@ main,
 footer {
   width: min(740px, calc(100% - 2.5rem));
   margin-inline: auto;
-  text-shadow: 0 1px 12px rgba(2, 20, 38, .48);
+  text-shadow: 0 1px 12px rgba(232, 239, 239, .5);
 }
 
 .page-header {
@@ -224,7 +224,7 @@ footer p {
   }
 
   .flow-shade {
-    background: linear-gradient(180deg, rgba(7, 21, 30, .36), rgba(7, 21, 30, .5) 40%, rgba(7, 21, 30, .42));
+    background: linear-gradient(180deg, rgba(220, 229, 231, .64), rgba(220, 229, 231, .8) 40%, rgba(231, 229, 219, .7));
   }
 
   .page-header {
