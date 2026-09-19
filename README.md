@@ -16,10 +16,13 @@ Then open `http://127.0.0.1:4000`.
 `assets/js/flow-background.js` renders a three-dimensional murmuration with Three.js.
 `assets/js/flock-model.js` computes local separation, alignment and cohesion in a
 spatial grid, plus soft volume boundaries, wind and a passing repulsive disturbance.
+Density-sensitive attraction and neighborhood pressure prevent compact groups from
+locking together. Overlapping air currents continually stretch and fold the flock.
 Birds do not follow preset curves. This is an artistic simulation, not a validated
 model of animal behavior. Desktop uses 3,200 birds; mobile uses 1,200.
 Instanced geometry renders the flock in one draw call; vertex shaders animate
-individual wingbeats and banking, while perspective and haze provide depth.
+individual wingbeats, flexible feathered wingtips and turn-rate banking, while
+perspective and haze provide depth. Birds alternate powered strokes and quiet glides.
 Dark silhouettes sit against an open blue sky, subtle sunlight and distant misty
 mountains. The local landscape is `assets/images/open-sky-mountains.jpg` (1672×941).
 A transparent screen-space shader adds gently drifting mist and faint sun rays;

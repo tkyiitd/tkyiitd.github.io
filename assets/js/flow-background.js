@@ -33,10 +33,17 @@ function start(THREE, Flock, canvas, button) {
   const vertices = new Float32Array([
     -.045,0,-.2, .045,0,-.2, 0,.035,.28,
     0,0,.12, -.24,0,-.015, -.09,0,-.14,
-    -.24,0,-.015, -.53,0,-.28, -.09,0,-.14,
+    -.24,0,-.015, -.43,0,-.12, -.09,0,-.14,
+    -.43,0,-.12, -.57,0,-.3, -.3,0,-.19,
+    -.3,0,-.19, -.5,0,-.32, -.22,0,-.2,
     0,0,.12, .09,0,-.14, .24,0,-.015,
-    .24,0,-.015, .09,0,-.14, .53,0,-.28,
-    0,0,-.12, -.085,0,-.34, .085,0,-.34
+    .24,0,-.015, .09,0,-.14, .43,0,-.12,
+    .43,0,-.12, .3,0,-.19, .57,0,-.3,
+    .3,0,-.19, .22,0,-.2, .5,0,-.32,
+    0,0,-.12, -.095,0,-.36, 0,0,-.3,
+    0,0,-.12, 0,0,-.3, .095,0,-.36,
+    -.045,0,-.15, 0,.055,.1, 0,0,.28,
+    .045,0,-.15, 0,0,.28, 0,.055,.1
   ]);
   geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
   const positions = new THREE.InstancedBufferAttribute(flock.positions, 3).setUsage(THREE.DynamicDrawUsage);
@@ -62,10 +69,18 @@ function start(THREE, Flock, canvas, button) {
       varying float vLight;
       void main() {
         vec3 p = position;
-        float glide = smoothstep(-.3, .7, sin(uTime * .42 + birdPhase));
-        float flap = sin(uTime * (7.0 + birdSize) + birdPhase);
-        p.y += abs(p.x) * flap * (.12 + .78 * glide);
-        p.z += abs(p.x) * cos(uTime * 7.0 + birdPhase) * .075;
+        float effort = smoothstep(-.25, .6, sin(uTime * .51 + birdPhase));
+        float cycle = uTime * (7.8 + birdSize * 1.7) + birdPhase;
+        float tip = smoothstep(.19, .56, abs(p.x));
+        float stroke = sin(cycle - tip * .65);
+        float flap = stroke + .18 * sin(2. * cycle - tip);
+        // Flexible tips lag the shoulder, with quiet glides between wingbeats.
+        float amplitude = .1 + .72 * effort;
+        p.y += abs(p.x) * flap * amplitude;
+        p.x *= 1. - tip * .12 * max(0., -stroke) * effort;
+        p.z += abs(p.x) * cos(cycle - tip * .4) * .065 * effort;
+        p.y += sin(cycle) * .012 * effort;
+        p.x += step(position.z, -.29) * sin(uTime * 2. + birdPhase) * .009;
         vec3 forward = normalize(birdVelocity);
         vec3 reference = abs(forward.y) > .95 ? vec3(1.,0.,0.) : vec3(0.,1.,0.);
         vec3 right = normalize(cross(reference, forward));

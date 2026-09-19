@@ -83,6 +83,11 @@ export class Flock {
               cx += dx * weight; cy += dy * weight; cz += dz * weight;
               vx += v[q] * weight; vy += v[q + 1] * weight; vz += v[q + 2] * weight;
               n += weight;
+              // Density pressure acts across the whole neighborhood, not only
+              // at collision distance. Dense knots expand instead of locking.
+              sx -= dx * weight * .09;
+              sy -= dy * weight * .09;
+              sz -= dz * weight * .09;
               if (d2 < 5) {
                 const force = (1 - d2 / 5) / (d2 + .15) * 4;
                 sx -= dx * force; sy -= dy * force; sz -= dz * force;
@@ -94,9 +99,12 @@ export class Flock {
       }
       let ax = sx, ay = sy, az = sz;
       if (n > 0) {
-        ax += (vx / n - v[k]) * 1.3 + cx / n * .5;
-        ay += (vy / n - v[k + 1]) * 1.3 + cy / n * .5;
-        az += (vz / n - v[k + 2]) * 1.3 + cz / n * .5;
+        const crowded = 1 / (1 + n * .065);
+        const gather = (.2 + .09 * Math.sin(t * .19 + x * .03)) * crowded;
+        const align = .55 + .35 * crowded;
+        ax += (vx / n - v[k]) * align + cx / n * gather;
+        ay += (vy / n - v[k + 1]) * align + cy / n * gather;
+        az += (vz / n - v[k + 2]) * align + cz / n * gather;
       }
       // Look-ahead soft boundaries turn the birds back without teleporting them.
       const bx = (x + v[k] * 2) / this.boundsX;
@@ -106,9 +114,14 @@ export class Flock {
       ay -= Math.sign(by) * Math.pow(Math.abs(by), 5) * 4;
       az -= Math.sign(bz) * Math.pow(Math.abs(bz), 5) * 4;
       // Small spatially varying wind keeps formations evolving.
-      ax += Math.sin(y * .045 + t * .16) * .6;
-      ay += Math.sin(z * .05 + t * .13) * .5;
-      az += Math.cos(x * .035 - t * .11) * .7;
+      // Differently paced, spatially varying currents continually shear and
+      // fold formations. No timers reset positions or force a fixed pattern.
+      ax += Math.sin(y * .085 + t * .23) * 1.7 + Math.cos(z * .1 - t * .17) * .8;
+      ay += Math.sin(z * .09 + t * .19) * 1.35 + Math.cos(x * .07 + t * .13) * .65;
+      az += Math.cos(x * .075 - t * .21) * 1.6 + Math.sin(y * .08 + t * .11) * .7;
+      const curiosity = this.phases[i];
+      ax += Math.sin(t * .47 + curiosity) * .2;
+      ay += Math.cos(t * .39 + curiosity) * .2;
       const dx = x - pressureX, dy = y - pressureY, dz = z - pressureZ;
       const d = Math.hypot(dx, dy, dz);
       if (d < 24 && d > .01) {
@@ -135,7 +148,9 @@ export class Flock {
       const limit = Math.max(6, Math.min(12, speed)) / speed;
       v[k] *= limit; v[k + 1] *= limit; v[k + 2] *= limit;
       p[k] += v[k] * dt; p[k + 1] += v[k + 1] * dt; p[k + 2] += v[k + 2] * dt;
-      const bank = Math.max(-.65, Math.min(.65, (oldX * v[k + 2] - oldZ * v[k]) * 2));
+      const horizontal = Math.max(1, oldX * oldX + oldZ * oldZ);
+      const turnRate = (oldX * v[k + 2] - oldZ * v[k]) / (horizontal * dt);
+      const bank = Math.max(-.75, Math.min(.75, turnRate * 1.8));
       this.banks[i] += (bank - this.banks[i]) * (1 - Math.exp(-dt * 3));
     }
   }
