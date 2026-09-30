@@ -46,15 +46,21 @@ white background with no animation.
 ## Presentation
 
 The product-page-inspired prototype keeps the profile's wording unchanged. A
-sticky translucent local navigation sits above the scenic opening; generous white
+floating liquid-glass local navigation sits above the scenic opening; generous white
 and pale-gray sections organize the existing experience, internships, talks,
 paper, patent and contact links. System fonts, inline CSS and ordinary HTML keep
 the text available immediately, independently of the background.
 
-`assets/js/presentation.js` progressively enhances the page with subtle section
-settling and current-section navigation. It never hides text or intercepts scrolling,
-and respects reduced-motion preferences. The layout adapts to narrow screens and
-has a separate print treatment. No additional framework or build step is required.
+`assets/js/presentation.js` progressively enhances a continuous normal-flow page
+with scroll-driven emergence and current-section navigation. Each heading gently
+unfolds from the preceding section's trailing space, followed by its content.
+Section backgrounds never pin, overlap, or cast panel shadows. Pale-gray surfaces
+blend into the shared white canvas. Scrolling, anchor links, focus and history
+retain their native behavior.
+
+Text never fades out or waits for animation. Reduced-motion preferences and print
+styles remove the movement. The layout adapts to narrow screens. No additional
+framework or build step is required.
 
 ### Landscape generation
 
