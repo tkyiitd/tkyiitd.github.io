@@ -8,11 +8,21 @@
   const entrances = new IntersectionObserver(entries => {
     for (const entry of entries) {
       if (!entry.isIntersecting) continue;
-      if (!preference.matches) entry.target.classList.add('is-entering');
+      entry.target.classList.add('is-visible');
       entrances.unobserve(entry.target);
     }
-  }, { threshold: 0, rootMargin: '0px 0px -48px 0px' });
-  shells.forEach(shell => entrances.observe(shell));
+  }, { threshold: 0, rootMargin: '0px 0px 48px 0px' });
+  shells.forEach(shell => {
+    // Leave already visible sections untouched, including direct anchor visits.
+    if (preference.matches || shell.getBoundingClientRect().top < window.innerHeight + 48) return;
+    shell.classList.add('reveal-ready');
+    entrances.observe(shell);
+  });
+  preference.addEventListener('change', () => {
+    if (!preference.matches) return;
+    entrances.disconnect();
+    shells.forEach(shell => shell.classList.remove('reveal-ready', 'is-visible'));
+  });
 
   const links = [...document.querySelectorAll('.nav-links a')];
   const sections = links.map(link => document.querySelector(link.getAttribute('href')));
