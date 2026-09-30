@@ -27,7 +27,7 @@ Dark silhouettes sit against an open blue sky, subtle sunlight and distant misty
 mountains. The local landscape is `assets/images/open-sky-mountains.jpg` (1672×941).
 A transparent screen-space shader adds gently drifting mist and faint sun rays;
 it shares the flock clock, reduced-motion behavior and pause control. Birds gently
-part around the pointer; a continuous light reading gradient protects the text.
+part around the pointer; a soft white reading gradient blends the opening into the page.
 The landscape loads independently, with a CSS sky fallback and no text-loading gate.
 
 Three.js 0.180.0 is pinned and served locally from `assets/js/three/`, with its MIT
@@ -40,7 +40,21 @@ before the engine loads. A static sky remains if JavaScript, WebGL2 or loading f
 The animation updates at 30 Hz with gently slowed simulation time, caps display
 resolution and scales the flock size to the initial viewport. It pauses in hidden tabs, honors reduced-motion
 preferences with a still composition, and has a keyboard-accessible play/pause
-button. Printing uses a white background with no animation.
+button. Rendering also stops when the opening scrolls out of view. Printing uses a
+white background with no animation.
+
+## Presentation
+
+The product-page-inspired prototype keeps the profile's wording unchanged. A
+sticky translucent local navigation sits above the scenic opening; generous white
+and pale-gray sections organize the existing experience, internships, talks,
+paper, patent and contact links. System fonts, inline CSS and ordinary HTML keep
+the text available immediately, independently of the background.
+
+`assets/js/presentation.js` progressively enhances the page with subtle section
+settling and current-section navigation. It never hides text or intercepts scrolling,
+and respects reduced-motion preferences. The layout adapts to narrow screens and
+has a separate print treatment. No additional framework or build step is required.
 
 ### Landscape generation
 

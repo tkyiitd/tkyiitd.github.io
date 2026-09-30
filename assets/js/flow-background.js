@@ -18,8 +18,10 @@ requestAnimationFrame(() => requestAnimationFrame(async () => {
 
 function start(THREE, Flock, canvas, button) {
   const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const stage = canvas.parentElement;
+  const initialBounds = stage.getBoundingClientRect();
   const mobile = window.innerWidth < 600;
-  const flock = new Flock(mobile ? 1200 : 3200, window.innerWidth / window.innerHeight);
+  const flock = new Flock(mobile ? 1200 : 3200, initialBounds.width / Math.max(1, initialBounds.height));
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.75));
   renderer.setClearColor(0x000000, 0);
@@ -153,7 +155,7 @@ function start(THREE, Flock, canvas, button) {
   veil.renderOrder = 2;
   scene.add(veil);
 
-  let paused = preference.matches, lost = false;
+  let paused = preference.matches, lost = false, inView = true;
   let frame = 0, previous = null, accumulator = 0;
   const pointer = { active: false, x: 0, y: 0 };
   function render() {
@@ -163,7 +165,8 @@ function start(THREE, Flock, canvas, button) {
     renderer.render(scene, camera);
   }
   function resize() {
-    const width = Math.max(1, window.innerWidth), height = Math.max(1, window.innerHeight);
+    const bounds = stage.getBoundingClientRect();
+    const width = Math.max(1, bounds.width), height = Math.max(1, bounds.height);
     flock.resize(width / height);
     camera.aspect = width / height;
     atmosphere.uniforms.uAspect.value = camera.aspect;
@@ -173,7 +176,7 @@ function start(THREE, Flock, canvas, button) {
   }
   function tick(now) {
     frame = 0;
-    if (paused || lost || document.hidden) return;
+    if (paused || lost || document.hidden || !inView) return;
     if (previous !== null) accumulator += Math.min((now - previous) / 1000, .06);
     previous = now;
     let updated = false;
@@ -191,15 +194,20 @@ function start(THREE, Flock, canvas, button) {
     frame = 0; previous = null; accumulator = 0;
     button.textContent = paused ? 'Play animation' : 'Pause animation';
     button.setAttribute('aria-pressed', String(paused));
-    if (!paused && !lost && !document.hidden) frame = requestAnimationFrame(tick);
+    if (!paused && !lost && !document.hidden && inView) frame = requestAnimationFrame(tick);
   }
   button.addEventListener('click', () => { paused = !paused; sync(); });
   preference.addEventListener('change', () => { paused = preference.matches; sync(); });
   document.addEventListener('visibilitychange', () => { pointer.active = false; sync(); });
   window.addEventListener('pointermove', event => {
+    const bounds = stage.getBoundingClientRect();
+    if (event.clientY < bounds.top || event.clientY > bounds.bottom || !inView) {
+      pointer.active = false;
+      return;
+    }
     const halfHeight = Math.tan(25 * Math.PI / 180) * camera.position.z;
-    pointer.x = (event.clientX / window.innerWidth * 2 - 1) * halfHeight * camera.aspect;
-    pointer.y = (1 - event.clientY / window.innerHeight * 2) * halfHeight;
+    pointer.x = ((event.clientX - bounds.left) / bounds.width * 2 - 1) * halfHeight * camera.aspect;
+    pointer.y = (1 - (event.clientY - bounds.top) / bounds.height * 2) * halfHeight;
     pointer.active = true;
   }, { passive: true });
   window.addEventListener('pointerup', event => {
@@ -213,9 +221,18 @@ function start(THREE, Flock, canvas, button) {
     lost = false; canvas.style.opacity = '1'; button.hidden = false; resize(); sync();
   });
   let resizeTimer;
-  window.addEventListener('resize', () => {
+  const scheduleResize = () => {
     clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 150);
-  }, { passive: true });
+  };
+  window.addEventListener('resize', scheduleResize, { passive: true });
+  if ('ResizeObserver' in window) new ResizeObserver(scheduleResize).observe(stage);
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(entries => {
+      inView = entries[0].isIntersecting;
+      pointer.active = false;
+      sync();
+    }).observe(stage);
+  }
   resize();
   button.hidden = false;
   sync();

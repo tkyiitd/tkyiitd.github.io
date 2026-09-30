@@ -7,87 +7,105 @@ last_modified: "2026-08-01T00:00:00+05:30"
 ---
 
 <main id="main">
-  <header class="page-header">
-    <h1>Tarun Kumar Yadav</h1>
-  </header>
+  <div class="hero" id="top">
+    <div class="flow-scene" aria-hidden="true">
+      <img class="sky-landscape" src="{{ '/assets/images/open-sky-mountains.jpg' | relative_url }}" alt="" decoding="async" fetchpriority="high">
+      <canvas class="flow-canvas"></canvas>
+      <div class="flow-shade"></div>
+    </div>
+    <div class="hero-copy">
+      <header class="page-header">
+        <h1>Tarun Kumar Yadav</h1>
+      </header>
 
-  <section aria-labelledby="about-heading">
-    <h2 id="about-heading">About</h2>
-    <p>
-      I studied Computer Science and Engineering at IIT Delhi from 2016 to 2020.
-      I was an IPS Officer Trainee at the Sardar Vallabhbhai Patel National Police
-      Academy, Hyderabad, from September 2025 to August 2026. I will join LBSNAA
-      as an IAS Officer Trainee.
-    </p>
-  </section>
+      <section class="about" id="about" aria-labelledby="about-heading">
+        <h2 id="about-heading">About</h2>
+        <p>
+          I studied Computer Science and Engineering at IIT Delhi from 2016 to 2020.
+          I was an IPS Officer Trainee at the Sardar Vallabhbhai Patel National Police
+          Academy, Hyderabad, from September 2025 to August 2026. I will join LBSNAA
+          as an IAS Officer Trainee.
+        </p>
+      </section>
+    </div>
+    <button class="motion-toggle" type="button" aria-pressed="false" hidden>Pause animation</button>
+  </div>
 
-  <section aria-labelledby="experience-heading">
-    <h2 id="experience-heading">Experience</h2>
-    <div class="entry-list">
-      {% for item in site.data.experience %}
-      <article class="entry">
-        <p class="entry-date">{{ item.period }}</p>
-        <div class="entry-content">
-          <h3>{{ item.role }}</h3>
-          {% if item.organization %}<p>{{ item.organization }}</p>{% endif %}
-          {% for detail in item.details %}<p class="detail">{{ detail }}</p>{% endfor %}
-        </div>
-      </article>
-      {% endfor %}
+  <section class="content-section experience" id="experience" aria-labelledby="experience-heading">
+    <div class="section-shell" data-reveal>
+      <h2 id="experience-heading">Experience</h2>
+      <div class="entry-list">
+        {% for item in site.data.experience %}
+        <article class="entry">
+          <p class="entry-date">{{ item.period }}</p>
+          <div class="entry-content">
+            <h3>{{ item.role }}</h3>
+            {% if item.organization %}<p>{{ item.organization }}</p>{% endif %}
+            {% for detail in item.details %}<p class="detail">{{ detail }}</p>{% endfor %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
     </div>
   </section>
 
-  <section aria-labelledby="internships-heading">
-    <h2 id="internships-heading">Internships</h2>
-
-    <div class="entry-list">
-      <article class="entry">
-        <p class="entry-date">2019</p>
-        <div class="entry-content">
-          <h3>Software Engineering Intern</h3>
-          <p>Worked on distributed storage, erasure coding and data compression.</p>
-        </div>
-      </article>
-
-      <article class="entry">
-        <p class="entry-date">2018</p>
-        <div class="entry-content">
-          <h3>Research Intern</h3>
-          <p>National University of Singapore</p>
-          <p class="detail">Worked on training algorithms and implementations for spiking neural networks.</p>
-        </div>
-      </article>
+  <section class="content-section section-band internships" id="internships" aria-labelledby="internships-heading">
+    <div class="section-shell" data-reveal>
+      <h2 id="internships-heading">Internships</h2>
+      <div class="entry-list">
+        <article class="entry">
+          <p class="entry-date">2019</p>
+          <div class="entry-content">
+            <h3>Software Engineering Intern</h3>
+            <p>Worked on distributed storage, erasure coding and data compression.</p>
+          </div>
+        </article>
+        <article class="entry">
+          <p class="entry-date">2018</p>
+          <div class="entry-content">
+            <h3>Research Intern</h3>
+            <p>National University of Singapore</p>
+            <p class="detail">Worked on training algorithms and implementations for spiking neural networks.</p>
+          </div>
+        </article>
+      </div>
     </div>
   </section>
 
-  <section aria-labelledby="talks-heading">
-    <h2 id="talks-heading">Talks</h2>
-    <p class="section-note">These are lectures on UPSC preparation. The views expressed are my own.</p>
-    <ul class="plain-list">
-      <li><a href="https://youtu.be/9VX7v6lRGQM">Lecture 1</a></li>
-      <li><a href="https://youtu.be/eiFe7HRH8Co">Lecture 2</a></li>
-    </ul>
+  <section class="content-section talks" id="talks" aria-labelledby="talks-heading">
+    <div class="section-shell" data-reveal>
+      <h2 id="talks-heading">Talks</h2>
+      <p class="section-note">These are lectures on UPSC preparation. The views expressed are my own.</p>
+      <ul class="plain-list">
+        <li><a href="https://youtu.be/9VX7v6lRGQM">Lecture 1</a></li>
+        <li><a href="https://youtu.be/eiFe7HRH8Co">Lecture 2</a></li>
+      </ul>
+    </div>
   </section>
 
-  <section aria-labelledby="paper-heading">
-    <h2 id="paper-heading">Paper and patent</h2>
-    <ul class="plain-list">
-      <li>
-        <a href="https://arxiv.org/abs/1903.09940">Variational Inference with Latent Space Quantization for Adversarial Resilience</a>, 2019.
-        <a class="secondary-link" href="{{ '/assets/docs/variational-inference-adversarial-resilience.pdf' | relative_url }}">PDF</a>
-      </li>
-      <li>
-        <a href="https://patents.google.com/patent/US12164477B2/en">Container-based erasure coding</a>, US Patent 12,164,477.
-      </li>
-    </ul>
+  <section class="content-section section-band publications" id="paper" aria-labelledby="paper-heading">
+    <div class="section-shell" data-reveal>
+      <h2 id="paper-heading">Paper and patent</h2>
+      <ul class="plain-list">
+        <li>
+          <a href="https://arxiv.org/abs/1903.09940">Variational Inference with Latent Space Quantization for Adversarial Resilience</a>, 2019.
+          <a class="secondary-link" href="{{ '/assets/docs/variational-inference-adversarial-resilience.pdf' | relative_url }}">PDF</a>
+        </li>
+        <li>
+          <a href="https://patents.google.com/patent/US12164477B2/en">Container-based erasure coding</a>, US Patent 12,164,477.
+        </li>
+      </ul>
+    </div>
   </section>
 
-  <section aria-labelledby="contact-heading">
-    <h2 id="contact-heading">Contact</h2>
-    <p class="contact-links">
-      <a href="https://t.me/emacs_rocks" rel="me">Telegram (@emacs_rocks)</a>
-      <a href="mailto:tkyiitd@gmail.com">Mail (tkyiitd@gmail.com)</a>
-    </p>
+  <section class="content-section contact" id="contact" aria-labelledby="contact-heading">
+    <div class="section-shell" data-reveal>
+      <h2 id="contact-heading">Contact</h2>
+      <p class="contact-links">
+        <a href="https://t.me/emacs_rocks" rel="me">Telegram (@emacs_rocks)</a>
+        <a href="mailto:tkyiitd@gmail.com">Mail (tkyiitd@gmail.com)</a>
+      </p>
+    </div>
   </section>
 </main>
 
