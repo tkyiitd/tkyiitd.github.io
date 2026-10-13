@@ -251,9 +251,6 @@ h1, h2, h3 { font-weight: 600; }
 .publications li:last-child { padding-bottom: 0; }
 .publications li > a:first-child { font-size: 21px; font-weight: 500; letter-spacing: -.02em; line-height: 1.5; }
 .secondary-link { display: inline-block; margin-left: 12px; font-size: 13px; padding: 3px 10px; border: 1px solid #c5d5e5; border-radius: 6px; }
-.contact { padding-top: 80px; padding-bottom: 80px; }
-.contact h2 { font-size: 28px; margin-bottom: 28px; }
-.contact-links { display: flex; flex-wrap: wrap; gap: 16px 36px; }
 footer {
   padding: 24px var(--gutter) 32px;
   border-top: 1px solid #e8e8ed;
@@ -294,7 +291,6 @@ footer p { max-width: var(--page-width); margin: auto; }
   .talks .plain-list a { padding: 26px; min-height: 108px; border-radius: 20px; }
   .talks .plain-list a::after { left: 46px; }
   .publications li > a:first-child { font-size: 19px; }
-  .contact-links { flex-direction: column; gap: 12px; font-size: 16px; }
 }
 @media (prefers-reduced-transparency: reduce) {
   .nav-inner { background: #f7f9fc; -webkit-backdrop-filter: none; backdrop-filter: none; }

@@ -48,7 +48,7 @@ white background with no animation.
 The product-page-inspired prototype keeps the profile's wording unchanged. A
 floating liquid-glass local navigation sits above the scenic opening; generous white
 and pale-gray sections organize the existing experience, internships, talks,
-paper, patent and contact links. System fonts, inline CSS and ordinary HTML keep
+paper and patent links. System fonts, inline CSS and ordinary HTML keep
 the text available immediately, independently of the background.
 
 `assets/js/presentation.js` progressively enhances a continuous normal-flow page
@@ -80,7 +80,7 @@ Constraints: No birds (a separate 3D flock will be overlaid), no people, buildin
 
 ## Updating content
 
-Edit `index.html` for the profile, talks, paper, patent and contact links. Add future
+Edit `index.html` for the profile, talks, paper and patent links. Add future
 roles or work to `_data/experience.yml`. Keep the profile structured data in
 `_layouts/default.html` and the last-updated dates consistent with content changes.
 
